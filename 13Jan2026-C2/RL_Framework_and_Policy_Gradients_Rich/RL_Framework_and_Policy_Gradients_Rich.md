@@ -1,6 +1,5 @@
 # RL Framework and Policy Gradients
 
-> This version embeds **formula images** for easy reading in any Markdown viewer (VS Code, GitHub, etc.).
 
 ---
 
