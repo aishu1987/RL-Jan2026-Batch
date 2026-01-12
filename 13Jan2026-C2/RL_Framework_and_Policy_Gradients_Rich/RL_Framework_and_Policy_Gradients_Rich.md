@@ -36,11 +36,11 @@ At each time step \(t\):
 “An MDP is defined by a set of **states**, a set of **actions**, a **transition** model, a **reward** function, and a **discount factor**.”
 
 **Meaning of each symbol**
-- \(\mathcal{S}\): set of possible states (situations)
-- \(\mathcal{A}\): set of possible actions (choices)
-- \(P\): transition model (how the environment moves)
-- \(R\): reward function (feedback signal)
-- \(\gamma\in[0,1)\): discount factor (how much we care about future rewards)
+- S: set of possible states (situations)
+- A: set of possible actions (choices)
+- P: transition model (how the environment moves)
+- R: reward function (feedback signal)
+- gamma in[0,1]: discount factor (how much we care about future rewards)
 
 ---
 
