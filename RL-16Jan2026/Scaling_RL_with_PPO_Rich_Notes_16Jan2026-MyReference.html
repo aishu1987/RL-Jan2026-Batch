@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scaling RL with Neural Networks & PPO — 16 Jan 2026</title>
+
+  <!-- Math rendering (KaTeX) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}]});"></script>
+
+  <style>
+    :root{
+      --bg:#0b1020; --card:#101a36; --text:#e9eefc; --muted:#b7c2e2;
+      --accent:#7aa2ff; --green:#4de3c1; --warn:#ffcc66; --danger:#ff6b6b;
+      --radius:18px; --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--sans); color:var(--text); line-height:1.6;
+      background:
+        radial-gradient(1200px 800px at 10% 0%, rgba(122,162,255,.16), transparent 60%),
+        radial-gradient(1000px 700px at 100% 20%, rgba(77,227,193,.10), transparent 55%),
+        var(--bg);
+    }
+    a{color:var(--accent); text-decoration:none} a:hover{text-decoration:underline}
+    .wrap{max-width:1080px; margin:0 auto; padding:26px 16px 70px;}
+    .hero{
+      border-radius:var(--radius); padding:22px 20px; box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    }
+    .pills{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;}
+    .pill{padding:6px 10px; border-radius:999px; font-size:12px; color:var(--muted);
+      border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); letter-spacing:.08em; text-transform:uppercase;}
+    h1{margin:8px 0 6px; font-size:clamp(28px, 3.2vw, 40px); letter-spacing:-.02em}
+    .sub{margin:0; color:var(--muted); max-width:85ch}
+    .toc{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px}
+    .toc a{font-size:13px; padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); color:var(--text)}
+    .sec{
+      margin-top:16px; border-radius:var(--radius); padding:18px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.04);
+    }
+    .sec h2{margin:0; font-size:20px; display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+    .sec h2 small{color:var(--muted); font-size:12px; letter-spacing:.08em; text-transform:uppercase}
+    .sec h3{margin:14px 0 8px; font-size:16px}
+    .sec p,.sec li{color:var(--muted)}
+    .sec ul{margin:6px 0 0 18px}
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    .box{border-radius:16px; padding:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18)}
+    .tag{display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--text)}
+    .dot{width:10px; height:10px; border-radius:999px; background:var(--accent); box-shadow:0 0 0 6px rgba(122,162,255,.12)}
+    .dot.g{background:var(--green); box-shadow:0 0 0 6px rgba(77,227,193,.10)}
+    .dot.w{background:var(--warn); box-shadow:0 0 0 6px rgba(255,204,102,.10)}
+    .dot.d{background:var(--danger); box-shadow:0 0 0 6px rgba(255,107,107,.10)}
+    .math{padding:10px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.22); overflow:auto; margin:10px 0}
+    pre{padding:12px; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.24); overflow:auto; font-family:var(--mono); color:#eaf2ff; font-size:12.5px}
+    .foot{margin-top:22px; color:var(--muted); font-size:13px; text-align:center}
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="hero" id="top">
+    <div class="pills">
+      <div class="pill">Class Notes</div>
+      <div class="pill">16 Jan 2026</div>
+      <div class="pill">Scaling RL</div>
+      <div class="pill">PPO</div>
+      <div class="pill">Retail Coupon Example</div>
+    </div>
+    <h1>Scaling RL with Neural Networks & PPO</h1>
+    <p class="sub">
+      Rich teaching notes that explain each numbered topic with a real-life retail example (couponing),
+      plus “what to say in class” guidance.
+    </p>
+
+    <div class="toc">
+      <a href="#s1">1) Scaling is hard</a>
+      <a href="#s2">2) Feature state</a>
+      <a href="#s3">3) Actor–Critic</a>
+      <a href="#s4">4) Advantage & GAE</a>
+      <a href="#s5">5) PPO</a>
+      <a href="#s6">6) PPO loop</a>
+      <a href="#s7">7) Reward curves</a>
+      <a href="#s8">8) Hands-on</a>
+      <a href="#s9">9) Tweaks</a>
+      <a href="#s10">10) Debug</a>
+      <a href="#s11">11) Summary</a>
+    </div>
+  </div>
+
+  <div class="sec" id="s1">
+    <h2>1) Why “Scaling” is hard in RL <small>tables → continuous reality</small></h2>
+    <p>
+      Scaling means the agent must make decisions across huge (often continuous) state spaces and large action sets.
+      Real environments also have delayed effects: actions today can change behavior weeks later.
+    </p>
+
+    <h3>1.1 Tabular RL does not scale</h3>
+    <div class="math">$$Q(s,a) \in \mathbb{R}$$</div>
+    <p>
+      With 1,000,000 states and 20 actions, the table needs 20M Q-values. With continuous features,
+      you almost never see the exact same state twice, so the table can’t learn reliably.
+    </p>
+
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot"></span> Real-life example</div>
+        <p>
+          Coupon decisioning state = recency, frequency, basket, channel, category mix, seasonality…
+          If any of these are continuous, the state space becomes “effectively infinite”.
+        </p>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot w"></span> What to say in class</div>
+        <ul>
+          <li>“Tables require repeat visits to the same state. Real customers don’t repeat exactly.”</li>
+          <li>“We need generalization → that’s why we use neural networks.”</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>1.2 Neural networks as function approximators</h3>
+    <div class="math">$$Q_\theta(s,a) \approx Q(s,a) \quad\text{or}\quad \pi_\theta(a\mid s)$$</div>
+    <p>
+      The network learns patterns: similar customers → similar action probabilities. That’s the scaling unlock.
+    </p>
+  </div>
+
+  <div class="sec" id="s2">
+    <h2>2) From “small MDP” to feature-based state <small>the bridge</small></h2>
+    <p>
+      Instead of LOYAL / PRICE_SENSITIVE labels, we use a numeric vector.
+      This is how we move from toy problems to production-grade setups.
+    </p>
+    <div class="math">$$s=[R,F,M,S,A]\in\mathbb{R}^d$$</div>
+
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot"></span> Real-life example</div>
+        <p>
+          RFM comes from transaction history; sensitivity from redemption; addiction from “needs coupon to buy” trend.
+          The RL policy becomes a campaign engine.
+        </p>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot w"></span> Teaching focus</div>
+        <ul>
+          <li>Spend time on normalization (e.g., divide by max) — it stabilizes training.</li>
+          <li>State design is part of the “model”: bad state → bad policy.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="s3">
+    <h2>3) Actor–Critic <small>two networks, two jobs</small></h2>
+    <p>
+      Actor chooses actions. Critic estimates long-term value so the actor doesn’t overfit short-term wins.
+    </p>
+
+    <h3>3.1 Actor (policy)</h3>
+    <div class="math">$$\pi_\theta(a\mid s)=\text{softmax}(f_\theta(s))_a$$</div>
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot"></span> Example</div>
+        <p>For one customer: 0%:0.62, 5%:0.25, 10%:0.10, 20%:0.03 → mostly “no coupon”, but still explores.</p>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot w"></span> What to say</div>
+        <p>“Early training needs stochasticity (exploration). Later the policy becomes more confident.”</p>
+      </div>
+    </div>
+
+    <h3>3.2 Critic (value)</h3>
+    <div class="math">$$V_\phi(s)\approx\mathbb{E}\left[\sum_{t=0}^{\infty}\gamma^t r_t\middle|s_0=s\right]$$</div>
+    <p>Retail translation: “What is the long-term profit if this customer looks like this today?”</p>
+  </div>
+
+  <div class="sec" id="s4">
+    <h2>4) Advantage & GAE(λ) <small>clean learning signal</small></h2>
+    <p>Advantage answers: “Was this action better than expected?”</p>
+    <div class="math">$$A(s_t,a_t)=Q(s_t,a_t)-V(s_t)$$</div>
+
+    <h3>GAE(λ) for practical advantage estimation</h3>
+    <div class="math">$$\delta_t=r_t+\gamma V(s_{t+1})-V(s_t)$$</div>
+    <div class="math">$$A_t=\sum_{l=0}^{\infty}(\gamma\lambda)^l\delta_{t+l}$$</div>
+
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot g"></span> Intuition</div>
+        <p>\(\delta_t\) is one-step “surprise”. GAE adds future surprises with decay \((\gamma\lambda)\).</p>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot w"></span> Classroom drill</div>
+        <p>Give 3-step rewards & values; compute one \(\delta_t\) and \(A_t\) live.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="s5">
+    <h2>5) PPO core idea <small>safe policy updates</small></h2>
+    <p>PPO prevents the policy from changing too much in one step.</p>
+
+    <h3>5.1 Ratio</h3>
+    <div class="math">$$r_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}$$</div>
+    <p>If \(r_t>1\), new policy increases probability of the taken action; if \(r_t<1\), it decreases.</p>
+
+    <h3>5.2 Clipped objective</h3>
+    <div class="math">$$L^{CLIP}(\theta)=\mathbb{E}[\min(r_tA_t,\;\text{clip}(r_t,1-\epsilon,1+\epsilon)A_t)]$$</div>
+
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot"></span> Step-by-step read</div>
+        <ul>
+          <li>Compute \(r_tA_t\) (improvement estimate)</li>
+          <li>Clip \(r_t\) into \([1-\epsilon,1+\epsilon]\)</li>
+          <li>Take min → blocks overly aggressive updates</li>
+        </ul>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot g"></span> Retail analogy</div>
+        <p>“Don’t swing discount strategy too aggressively week-to-week.” Clipping is the guardrail.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="s6">
+    <h2>6) PPO training loop <small>what happens per iteration</small></h2>
+    <ol style="color:var(--muted); margin:6px 0 0 18px">
+      <li>Rollout T steps: collect (s, a, r, logp, V)</li>
+      <li>Compute returns & advantages</li>
+      <li>K epochs minibatch SGD on PPO objective</li>
+      <li>Update old-policy snapshot</li>
+      <li>Repeat with fresh data (on-policy)</li>
+    </ol>
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot w"></span> Teaching note</div>
+        <p>Even if the environment is continuing (no “done”), we can report by fixed blocks (e.g., 256 steps).</p>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot"></span> Why on-policy matters</div>
+        <p>PPO wants fresh samples from the current policy; stale data can mislead updates.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="s7">
+    <h2>7) Reward curves <small>your first diagnostic tool</small></h2>
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot g"></span> Healthy</div>
+        <ul>
+          <li>Moving average rises steadily</li>
+          <li>Entropy decreases gradually</li>
+          <li>Value loss stabilizes</li>
+        </ul>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot d"></span> Red flags</div>
+        <ul>
+          <li>Jump then crash → LR too high / too aggressive updates</li>
+          <li>Flat line → weak signal / too much noise</li>
+          <li>Entropy collapses early → policy too deterministic too soon</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="s8">
+    <h2>8) Hands-on Python <small>Retail Coupon PPO</small></h2>
+    <p>
+      The full runnable code is provided as a separate file:
+      <b>ppo_retail_scaled.py</b> (download and run locally).
+    </p>
+    <pre><code>pip install torch numpy matplotlib
+python ppo_retail_scaled.py</code></pre>
+
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot"></span> What the environment teaches</div>
+        <ul>
+          <li>Coupons increase short-term purchase probability</li>
+          <li>Over-couponing increases “addiction” (future dependence)</li>
+          <li>Reward = profit (margin − discount cost)</li>
+        </ul>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot w"></span> Teaching tip</div>
+        <p>Ask learners: “Why might 20% look good today but be bad long-term?” → addiction is the delayed effect.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="s9">
+    <h2>9) Quick knobs to tweak <small>fast experiments</small></h2>
+    <ul>
+      <li>clip_eps: 0.2 → 0.3 (riskier updates)</li>
+      <li>ent_coef: 0.01 → 0.0 (less exploration)</li>
+      <li>steps_per_iter: 2048 → 4096 (better advantage estimates)</li>
+      <li>lr: 3e-4 → 1e-4 (more stable)</li>
+    </ul>
+  </div>
+
+  <div class="sec" id="s10">
+    <h2>10) Failure patterns & debugging <small>what to do first</small></h2>
+    <div class="grid">
+      <div class="box">
+        <div class="tag"><span class="dot d"></span> Collapse early</div>
+        <p>Entropy → 0 quickly. Fix: increase ent_coef, reduce lr, reduce epochs.</p>
+      </div>
+      <div class="box">
+        <div class="tag"><span class="dot w"></span> Oscillation</div>
+        <p>Reward jumps and drops. Fix: reduce lr, reduce clip_eps, increase batch/minibatch stability.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="s11">
+    <h2>11) Summary <small>what to remember</small></h2>
+    <ul>
+      <li>NNs replace Q-tables and generalize across continuous state spaces</li>
+      <li>Actor chooses actions; critic predicts long-term value</li>
+      <li>Advantage + GAE reduce variance</li>
+      <li>PPO clipping limits policy change per update → stability</li>
+      <li>Reward curves are the quickest diagnostic</li>
+    </ul>
+    <p><a href="#top">Back to top ↑</a></p>
+  </div>
+
+  <div class="foot">
+    If math doesn’t render offline, open once with internet (KaTeX loads from CDN).
+  </div>
+</div>
+</body>
+</html>

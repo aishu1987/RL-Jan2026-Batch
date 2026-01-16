@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scaling RL with Neural Networks & PPO — Infographic (16 Jan 2026)</title>
+<style>
+:root{--bg:#0b1020;--stroke:rgba(255,255,255,.16);--text:rgba(255,255,255,.92);--muted:rgba(255,255,255,.70);--muted2:rgba(255,255,255,.55);
+--accent:#7C3AED;--shadow:0 16px 60px rgba(0,0,0,.45);--r:18px;--r2:22px;
+--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+--sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+body{margin:0;color:var(--text);font-family:var(--sans);line-height:1.35;background:
+radial-gradient(1200px 700px at 20% 10%, rgba(124,58,237,.35), transparent 60%),
+radial-gradient(900px 600px at 85% 25%, rgba(6,182,212,.28), transparent 55%),
+radial-gradient(900px 700px at 70% 95%, rgba(34,197,94,.20), transparent 60%),var(--bg)}
+.wrap{max-width:1200px;margin:28px auto 48px;padding:0 18px}
+.hero{border:1px solid var(--stroke);background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));box-shadow:var(--shadow);border-radius:var(--r2);overflow:hidden}
+.hero-top{padding:22px 24px 16px;display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid rgba(255,255,255,.10)}
+.title{display:flex;gap:14px;align-items:flex-start}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.80);background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);padding:6px 10px;border-radius:999px;white-space:nowrap}
+h1{margin:0;font-size:24px;letter-spacing:.2px}
+.sub{margin-top:6px;color:var(--muted);font-size:14px;max-width:70ch}
+.meta{text-align:right;color:var(--muted2);font-size:12px;white-space:nowrap}
+.meta strong{color:var(--text);font-weight:650}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;padding:18px}
+.card{border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04));border-radius:var(--r);padding:16px;min-height:190px}
+.card h2{margin:0 0 10px;font-size:15px}
+ul{margin:0;padding:0 0 0 18px;color:var(--muted);font-size:13px}
+li{margin:8px 0}
+.formula{margin-top:10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);font-family:var(--mono);font-size:12px;color:rgba(255,255,255,.86);overflow:auto;white-space:nowrap}
+.flow{grid-column:1/-1;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04));border-radius:var(--r2);padding:16px}
+.flow svg{width:100%;height:auto;display:block;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.20)}
+@media (max-width:980px){.grid{grid-template-columns:1fr}.meta{text-align:left}.hero-top{flex-direction:column;align-items:flex-start}}
+</style></head>
+<body>
+<div class="wrap"><section class="hero">
+<div class="hero-top">
+  <div class="title">
+    <div class="badge"><span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:var(--accent);"></span>RL • Function Approximation • PPO</div>
+    <div>
+      <h1>Scaling Reinforcement Learning with Neural Networks & PPO</h1>
+      <div class="sub">Tabular RL → neural function approximation → stable policy optimization via PPO (clipping + value baseline + GAE).</div>
+    </div>
+  </div>
+  <div class="meta"><div><strong>Class Date:</strong> 16 Jan 2026</div><div><strong>Theme:</strong> Stable learning at scale</div></div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Neural Networks (Function Approx.)</h2>
+    <ul><li>Generalize from continuous features</li><li>Replace Q-table with Qθ(s,a) or πθ(a|s)</li></ul>
+    <div class="formula">Qθ(s,a) ≈ Q(s,a) • πθ(a|s)=softmax(fθ(s))</div>
+  </div>
+
+  <div class="card">
+    <h2>Actor–Critic</h2>
+    <ul><li>Actor: πθ(a|s)</li><li>Critic: Vϕ(s) baseline</li><li>Advantage drives updates</li></ul>
+    <div class="formula">A(s,a)=Q(s,a)−V(s)</div>
+  </div>
+
+  <div class="card">
+    <h2>PPO (Clipping)</h2>
+    <ul><li>Use ratio r = πθ/πold</li><li>Clip to limit update size</li><li>Add entropy for exploration</li></ul>
+    <div class="formula">Lclip=E[min(rA, clip(r,1−ε,1+ε)A)]</div>
+  </div>
+
+  <div class="flow">
+    <h2 style="margin:0 0 12px;font-size:15px;">PPO workflow</h2>
+    <svg viewBox="0 0 1160 260" role="img" aria-label="PPO workflow diagram">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.75)"/>
+        </marker>
+        <style>
+          .node{rx:18;ry:18;fill:rgba(255,255,255,0.07);stroke:rgba(255,255,255,0.18);stroke-width:1.2}
+          .t1{font:700 13px ui-sans-serif,system-ui;fill:rgba(255,255,255,0.92)}
+          .t2{font:500 12px ui-sans-serif,system-ui;fill:rgba(255,255,255,0.70)}
+          .edge{stroke:rgba(255,255,255,0.55);stroke-width:2.2;fill:none;marker-end:url(#arrow)}
+        </style>
+      </defs>
+
+      <rect class="node" x="30" y="45" width="250" height="150"></rect>
+      <rect class="node" x="320" y="25" width="250" height="190"></rect>
+      <rect class="node" x="610" y="25" width="250" height="190"></rect>
+      <rect class="node" x="900" y="45" width="230" height="150"></rect>
+
+      <text class="t1" x="50" y="85">1) Rollout</text>
+      <text class="t2" x="50" y="110">Collect (s,a,r,logπold,V)</text>
+
+      <text class="t1" x="340" y="70">2) Compute A (GAE)</text>
+      <text class="t2" x="340" y="95">δt = rt + γVt+1 − Vt</text>
+      <text class="t2" x="340" y="118">At = Σ (γλ)^l δt+l</text>
+
+      <text class="t1" x="630" y="70">3) PPO Update</text>
+      <text class="t2" x="630" y="95">r = πθ/πold</text>
+      <text class="t2" x="630" y="118">Optimize clipped loss</text>
+
+      <text class="t1" x="920" y="85">4) Monitor</text>
+      <text class="t2" x="920" y="110">Reward, value loss, entropy</text>
+
+      <path class="edge" d="M 280 120 C 300 120, 300 120, 320 120"></path>
+      <path class="edge" d="M 570 120 C 590 120, 590 120, 610 120"></path>
+      <path class="edge" d="M 860 120 C 880 120, 880 120, 900 120"></path>
+    </svg>
+  </div>
+</div>
+</section></div>
+</body></html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Class Pack — 16 Jan 2026 | Scaling RL with Neural Networks & PPO</title>
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1020; --stroke:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.70); --muted2:rgba(255,255,255,.55);
+      --accent:#7C3AED; --shadow:0 18px 70px rgba(0,0,0,.45);
+      --r2:22px; --max: 1120px;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    body{
+      margin:0; color:var(--text); font-family:var(--sans); line-height:1.55;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(124,58,237,0.35), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(6,182,212,0.28), transparent 55%),
+        radial-gradient(900px 700px at 70% 95%, rgba(34,197,94,0.20), transparent 60%),
+        var(--bg);
+    }
+    .outer{ max-width: var(--max); margin: 26px auto 60px; padding: 0 18px; }
+    .panel{ border:1px solid var(--stroke); background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      box-shadow: var(--shadow); border-radius: var(--r2); overflow:hidden; }
+    .cover{ padding: 22px 24px 18px; border-bottom:1px solid rgba(255,255,255,.10); }
+    .badge{ display:inline-flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.80);
+      background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.14); padding:6px 10px; border-radius:999px; white-space:nowrap; }
+    h1{ margin:10px 0 0; font-size: 28px; letter-spacing:.2px; }
+    .sub{ margin-top:10px; color:var(--muted); font-size:14px; max-width: 95ch; }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .btn{ border:1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.08); color: rgba(255,255,255,.92);
+      padding: 9px 12px; border-radius: 12px; font-size: 12px; cursor:pointer; }
+    .btn:hover{ background: rgba(255,255,255,.11); }
+    .section{ padding: 16px 18px; border-top:1px solid rgba(255,255,255,.08); }
+    .section h2{ margin: 0 0 10px; font-size: 16px; letter-spacing:.2px; }
+    .shell{ border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); border-radius: var(--r2); overflow:hidden; }
+    .topbar{ padding: 12px 14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,.08); }
+    .chips{ display:flex; flex-wrap:wrap; gap:10px; }
+    .chip{ border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); padding:6px 10px; border-radius:999px;
+      font-size:12px; color:rgba(255,255,255,.78); }
+    .chip b{ color: rgba(255,255,255,.92); }
+    .embedded .wrap{ max-width:none !important; margin:0 !important; padding:0 !important; }
+    .footer{ padding: 14px 18px; border-top:1px solid rgba(255,255,255,.10); color: var(--muted2); font-size: 12px; text-align:center; }
+    @media print{
+      body{ background:white; color:#111; }
+      .panel, .shell{ box-shadow:none; background:white; border-color:#ddd; }
+      .badge, .chip, .btn{ background:white !important; color:#111 !important; border-color:#ddd !important; }
+      .sub, .footer{ color:#333 !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="outer">
+    <div class="panel" id="top">
+      <div class="cover">
+        <div class="badge">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:var(--accent);"></span>
+          Class Pack • 16 Jan 2026
+        </div>
+        <h1>Scaling RL with Neural Networks & PPO</h1>
+        <div class="sub">
+          Single HTML containing: <b>Rich Notes</b> (clear formulas + state representation) and <b>PPO Infographic</b> (workflow + key equations).
+        </div>
+        <div class="btnRow">
+          <button class="btn" onclick="jump('#notes')">Notes</button>
+          <button class="btn" onclick="jump('#infographic')">Infographic</button>
+          <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+        </div>
+      </div>
+
+      <div class="section" id="notes">
+        <h2>Rich Notes</h2>
+        <div class="shell">
+          <div class="topbar">
+            <div class="chips">
+              <div class="chip"><b>Actor</b>: $\pi_\theta(a|s)$</div>
+              <div class="chip"><b>Critic</b>: $V_\phi(s)$</div>
+              <div class="chip"><b>PPO</b>: clipped ratio</div>
+              <div class="chip"><b>GAE</b>: smoothed $A_t$</div>
+            </div>
+            <div class="btnRow" style="margin:0;">
+              <button class="btn" onclick="jump('#infographic')">Go to Infographic</button>
+              <button class="btn" onclick="jump('#top')">Top</button>
+            </div>
+          </div>
+          <div class="embedded"><div class="wrap">
+
+    <header class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="badge">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:var(--accent);"></span>
+            Scaling RL • Neural Networks • PPO
+          </div>
+          <h1>Scaling Reinforcement Learning with Neural Networks & PPO</h1>
+          <div class="sub">
+            A class-ready, rich note sheet with clear formulas (MathJax), practical PPO intuition, and a clean state representation (discrete → feature vectors).
+          </div>
+        </div>
+        <div class="meta">
+          <div><strong>Class Date:</strong> 16 Jan 2026</div>
+          <div><strong>Use case:</strong> Retail coupons</div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="chips">
+          <div class="chip"><b>Actor</b>: $\pi_\theta(a|s)$</div>
+          <div class="chip"><b>Critic</b>: $V_\phi(s)$ baseline</div>
+          <div class="chip"><b>PPO</b>: clipped ratio + entropy</div>
+          <div class="chip"><b>GAE</b>: low-variance $A_t$</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+          <button class="btn" onclick="scrollToTop()">Top</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Left: TOC -->
+      <aside class="side">
+        <h3>Table of Contents</h3>
+        <nav class="toc">
+          <a href="#s1" style="color: white;">1) Why tabular RL fails at scale</a>
+          <a href="#s2" style="color: white;">2) Neural function approximation</a>
+          <a href="#s3" style="color: white;">3) Actor–Critic recap (policy + value)</a>
+          <a href="#s4" style="color: white;">4) Advantage + GAE(λ)</a>
+          <a href="#s5" style="color: white;">5) PPO: clipped objective</a>
+          <a href="#s6" style="color: white;">6) Training loop (rollouts → updates)</a>
+          <a href="#s7" style="color: white;">7) Reward curves: what to watch</a>
+          <a href="#s8" style="color: white;">8) State representation (discrete → features)</a>
+          <a href="#s9" style="color: white;">9) Minimal PPO code skeleton</a>
+          <a href="#s10" style="color: white;">10) Class experiments + debugging</a>
+        </nav>
+        <div class="small">
+          <b>Tip:</b> Open this HTML in Chrome → zoom to 125% for classroom projection.<br/><br/>
+          <b>Formulas:</b> Render via MathJax. If you’re offline, use “Print / Save as PDF” once while online.
+        </div>
+      </aside>
+
+      <!-- Right: Notes -->
+      <main class="main">
+        <section id="s1" class="section">
+          <h2>1) Why tabular RL fails at scale</h2>
+          <p>
+            Tabular RL stores a separate value for every state–action pair. That’s fine when states are few, but breaks when states are large or continuous.
+          </p>
+
+          <div class="two">
+            <div class="card">
+              <h4><span class="pill">Tabular</span> Q-table requirement</h4>
+              <div class="formula">
+                <div class="label">Read it as: “Q of state s and action a is a real number.”</div>
+                $$Q(s,a)\in \mathbb{R}$$
+              </div>
+              <ul>
+                <li>If $|S|=10^6$ and $|A|=20$, table size = 20 million values.</li>
+                <li>Continuous features (recency, spend) make $|S|$ effectively infinite.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Scaling pain</span> Why it hurts in practice</h4>
+              <ul>
+                <li>Memory blow-up + sparse visitation (you rarely see the same state twice).</li>
+                <li>No generalization: a table cannot learn “nearby states are similar”.</li>
+                <li>In real systems, state is a vector: demographics + behavior + context.</li>
+              </ul>
+              <div class="callout">
+                <b>Key idea:</b> Replace “lookup” with “learn a function” that generalizes.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="s2" class="section">
+          <h2>2) Neural function approximation</h2>
+          <p>
+            A neural network learns a mapping from features → value/policy. The weights $\theta$ store knowledge compactly and generalize to unseen states.
+          </p>
+
+          <div class="grid3">
+            <div class="card">
+              <h4><span class="pill">Value-based</span> Approximate $Q$</h4>
+              <div class="formula">
+                <div class="label">“Q-theta of (s,a) approximates the true Q.”</div>
+                $$Q_\theta(s,a)\approx Q(s,a)$$
+              </div>
+              <ul>
+                <li>Typical for DQN-style methods.</li>
+                <li>More tricky with stability (off-policy issues).</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Policy-based</span> Learn $\pi$ directly</h4>
+              <div class="formula">
+                <div class="label">“pi-theta of (a given s) is probability of action a.”</div>
+                $$\pi_\theta(a|s)$$
+              </div>
+              <ul>
+                <li>Natural for large/continuous actions.</li>
+                <li>Works well with actor–critic + PPO.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Discrete actions</span> Softmax policy</h4>
+              <div class="formula">
+                <div class="label">“Softmax turns logits into probabilities.”</div>
+                $$\pi_\theta(a|s)=\mathrm{softmax}(f_\theta(s))_a$$
+              </div>
+              <ul>
+                <li>$f_\theta(s)$ produces logits (unnormalized scores).</li>
+                <li>Softmax ensures probabilities sum to 1.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="s3" class="section">
+          <h2>3) Actor–Critic recap (policy + value)</h2>
+          <p>
+            Actor–Critic splits responsibilities: <b>Actor</b> chooses actions, <b>Critic</b> evaluates states (baseline).
+          </p>
+
+          <div class="two">
+            <div class="diagram">
+              <svg viewBox="0 0 900 260" role="img" aria-label="Actor critic diagram">
+                <defs>
+                  <linearGradient id="ga" x1="0" x2="1">
+                    <stop offset="0" stop-color="#7C3AED" stop-opacity="0.85"/>
+                    <stop offset="1" stop-color="#06B6D4" stop-opacity="0.85"/>
+                  </linearGradient>
+                  <linearGradient id="gb" x1="0" x2="1">
+                    <stop offset="0" stop-color="#22C55E" stop-opacity="0.85"/>
+                    <stop offset="1" stop-color="#F59E0B" stop-opacity="0.85"/>
+                  </linearGradient>
+                  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.70)"/>
+                  </marker>
+                  <style>
+                    .box{rx:18;ry:18;fill:rgba(255,255,255,0.07);stroke:rgba(255,255,255,0.18);stroke-width:1.2}
+                    .t1{font:700 14px ui-sans-serif,system-ui;fill:rgba(255,255,255,0.92)}
+                    .t2{font:500 12px ui-sans-serif,system-ui;fill:rgba(255,255,255,0.70)}
+                    .edge{stroke:rgba(255,255,255,0.55);stroke-width:2.2;fill:none;marker-end:url(#arr)}
+                  </style>
+                </defs>
+                <rect class="box" x="30" y="70" width="200" height="120"></rect>
+                <rect class="box" x="270" y="30" width="260" height="200"></rect>
+                <rect class="box" x="570" y="30" width="300" height="200"></rect>
+
+                <rect x="42" y="82" width="176" height="10" rx="8" fill="url(#ga)" opacity="0.9"></rect>
+                <rect x="282" y="42" width="236" height="10" rx="8" fill="url(#gb)" opacity="0.9"></rect>
+                <rect x="582" y="42" width="276" height="10" rx="8" fill="url(#ga)" opacity="0.9"></rect>
+
+                <text class="t1" x="52" y="120">State</text>
+                <text class="t2" x="52" y="145">$s_t$ (features)</text>
+
+                <text class="t1" x="292" y="85">Actor (Policy Net)</text>
+                <text class="t2" x="292" y="110">outputs $\pi_\theta(a|s)$</text>
+                <text class="t2" x="292" y="135">sample action $a_t$</text>
+
+                <text class="t1" x="592" y="85">Critic (Value Net)</text>
+                <text class="t2" x="592" y="110">predicts $V_\phi(s_t)$</text>
+                <text class="t2" x="592" y="135">baseline for advantage</text>
+
+                <path class="edge" d="M 230 130 C 250 130, 250 130, 270 130"></path>
+                <path class="edge" d="M 230 160 C 260 190, 520 190, 570 160"></path>
+
+                <text class="t2" x="345" y="210">action → env → reward</text>
+                <text class="t2" x="600" y="210">value helps reduce variance</text>
+              </svg>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Baseline</span> Why the critic helps</h4>
+              <p>
+                Policy gradients can be noisy. Subtracting a baseline keeps the direction (on average) but reduces variance.
+              </p>
+              <div class="formula">
+                <div class="label">Advantage = “how much better than expected”.</div>
+                $$A(s_t,a_t)=Q(s_t,a_t)-V(s_t)$$
+              </div>
+              <div class="callout">
+                <b>In class terms:</b> if $A>0$, increase probability of that action; if $A<0$, decrease it.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="s4" class="section">
+          <h2>4) Advantage + GAE(λ)</h2>
+          <p>
+            We estimate advantages from rollout data. GAE (Generalized Advantage Estimation) trades bias vs variance using $\lambda$.
+          </p>
+
+          <div class="grid3">
+            <div class="card">
+              <h4><span class="pill">TD error</span> one-step surprise</h4>
+              <div class="formula">
+                <div class="label">Read: “delta equals reward plus discounted next value minus current value”.</div>
+                $$\delta_t=r_t+\gamma V(s_{t+1})-V(s_t)$$
+              </div>
+              <ul>
+                <li>If $\delta_t$ is large positive → outcome better than expected.</li>
+                <li>If negative → worse than expected.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4><span class="pill">GAE</span> accumulate TD errors</h4>
+              <div class="formula">
+                <div class="label">Discount TD errors with $(\gamma\lambda)^l$.</div>
+                $$A_t=\sum_{l=0}^{\infty}(\gamma\lambda)^l\,\delta_{t+l}$$
+              </div>
+              <ul>
+                <li>$\lambda\uparrow$ → smoother, lower variance (but more bias).</li>
+                <li>Common: $\gamma=0.99$, $\lambda=0.95$.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4><span class="pill">Returns</span> target for critic</h4>
+              <div class="formula">
+                <div class="label">Critic learns to match estimated returns.</div>
+                $$\hat{R}_t=A_t+V(s_t)$$
+              </div>
+              <ul>
+                <li>Train critic with MSE: $(V-\hat{R})^2$.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="s5" class="section">
+          <h2>5) PPO: clipped objective</h2>
+          <p>
+            PPO is a policy-gradient method that stabilizes learning by restricting how much the policy changes per update.
+          </p>
+
+          <div class="two">
+            <div class="card">
+              <h4><span class="pill">Ratio</span> “how much we changed”</h4>
+              <div class="formula">
+                <div class="label">New probability divided by old probability for the action taken.</div>
+                $$r_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}$$
+              </div>
+              <ul>
+                <li>$r_t>1$: new policy increased probability of $a_t$.</li>
+                <li>$r_t<1$: new policy decreased it.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Clipping</span> safe improvement</h4>
+              <div class="formula">
+                <div class="label">Take the minimum of unclipped vs clipped objective.</div>
+                $$L^{\text{CLIP}}(\theta)=\mathbb{E}\Big[\min(r_tA_t,\ \text{clip}(r_t,1-\epsilon,1+\epsilon)A_t)\Big]$$
+              </div>
+              <div class="callout">
+                <b>Intuition:</b> If the optimizer tries to change the policy too much, clipping “pushes back”.
+              </div>
+            </div>
+          </div>
+
+          <div class="two">
+            <div class="card">
+              <h4><span class="pill">Critic loss</span> fit values</h4>
+              <div class="formula">
+                $$L^V(\phi)=\mathbb{E}\big[(V_\phi(s_t)-\hat{R}_t)^2\big]$$
+              </div>
+              <ul>
+                <li>Stabilizes learning by giving better baselines.</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Entropy</span> keep exploring</h4>
+              <div class="formula">
+                $$H(\pi(\cdot|s))=-\sum_a \pi(a|s)\log \pi(a|s)$$
+              </div>
+              <ul>
+                <li>Prevents premature “always pick the same action”.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout">
+            <b>Combined loss used in practice:</b>
+            $\ \mathcal{L} = -L^{\text{CLIP}} + c_1 L^V - c_2 H\ $
+          </div>
+        </section>
+
+        <section id="s6" class="section">
+          <h2>6) Training loop (rollouts → updates)</h2>
+          <p>
+            PPO is on-policy: you collect data with the current policy, then do a few SGD epochs on that same data.
+          </p>
+
+          <div class="diagram">
+            <svg viewBox="0 0 1160 300" role="img" aria-label="PPO loop diagram">
+              <defs>
+                <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.70)"/>
+                </marker>
+                <style>
+                  .box{rx:18;ry:18;fill:rgba(255,255,255,0.07);stroke:rgba(255,255,255,0.18);stroke-width:1.2}
+                  .t1{font:700 13px ui-sans-serif,system-ui;fill:rgba(255,255,255,0.92)}
+                  .t2{font:500 12px ui-sans-serif,system-ui;fill:rgba(255,255,255,0.70)}
+                  .edge{stroke:rgba(255,255,255,0.55);stroke-width:2.2;fill:none;marker-end:url(#arr2)}
+                </style>
+              </defs>
+
+              <rect class="box" x="30"  y="75" width="260" height="150"></rect>
+              <rect class="box" x="320" y="45" width="260" height="210"></rect>
+              <rect class="box" x="610" y="45" width="260" height="210"></rect>
+              <rect class="box" x="900" y="75" width="230" height="150"></rect>
+
+              <text class="t1" x="50" y="115">1) Rollout T steps</text>
+              <text class="t2" x="50" y="140">Collect (s, a, r, logπold, V)</text>
+              <text class="t2" x="50" y="165">Usually 1K–8K steps</text>
+
+              <text class="t1" x="340" y="95">2) Compute A, R</text>
+              <text class="t2" x="340" y="120">GAE(λ) advantages</text>
+              <text class="t2" x="340" y="145">Returns for critic</text>
+
+              <text class="t1" x="630" y="95">3) SGD epochs (K)</text>
+              <text class="t2" x="630" y="120">Minibatches of rollout</text>
+              <text class="t2" x="630" y="145">Clip ratio + value loss + entropy</text>
+
+              <text class="t1" x="920" y="115">4) Log & plot</text>
+              <text class="t2" x="920" y="140">Return, entropy, value loss</text>
+
+              <path class="edge" d="M 290 150 C 305 150, 305 150, 320 150"></path>
+              <path class="edge" d="M 580 150 C 595 150, 595 150, 610 150"></path>
+              <path class="edge" d="M 870 150 C 885 150, 885 150, 900 150"></path>
+
+              <path class="edge" d="M 1015 235 C 980 285, 210 285, 155 235"></path>
+              <text class="t2" x="445" y="290">Repeat until reward curve stabilizes</text>
+            </svg>
+          </div>
+
+          <div class="callout">
+            <b>Why PPO “updates inside episodes”:</b> you don’t need full episodes; PPO uses fixed-length rollouts (segments). That’s practical for continuing tasks.
+          </div>
+        </section>
+
+        <section id="s7" class="section">
+          <h2>7) Reward curves: what to watch</h2>
+          <p>
+            The first thing you should plot is the return curve. It tells you whether learning is working, and how stable it is.
+          </p>
+
+          <div class="two">
+            <div class="diagram">
+              <!-- A clean vector “reward curve” illustration -->
+              <svg viewBox="0 0 760 340" role="img" aria-label="Reward curve illustration">
+                <defs>
+                  <style>
+                    .axis{stroke:rgba(255,255,255,0.35);stroke-width:2}
+                    .grid{stroke:rgba(255,255,255,0.08);stroke-width:1}
+                    .line{fill:none;stroke:rgba(255,255,255,0.85);stroke-width:3}
+                    .line2{fill:none;stroke:rgba(255,255,255,0.55);stroke-width:3;stroke-dasharray:6 6}
+                    .t{font:600 12px ui-sans-serif,system-ui;fill:rgba(255,255,255,0.72)}
+                    .t2{font:500 12px ui-sans-serif,system-ui;fill:rgba(255,255,255,0.60)}
+                  </style>
+                </defs>
+
+                <!-- grid -->
+                <rect x="0" y="0" width="760" height="340" fill="rgba(0,0,0,0.18)"/>
+                <g>
+                  {% for y in range(40, 320, 40) %}
+                  {% endfor %}
+                </g>
+
+                <!-- manual grid lines -->
+                <g>
+                  <line class="grid" x1="60" y1="60" x2="740" y2="60"/>
+                  <line class="grid" x1="60" y1="100" x2="740" y2="100"/>
+                  <line class="grid" x1="60" y1="140" x2="740" y2="140"/>
+                  <line class="grid" x1="60" y1="180" x2="740" y2="180"/>
+                  <line class="grid" x1="60" y1="220" x2="740" y2="220"/>
+                  <line class="grid" x1="60" y1="260" x2="740" y2="260"/>
+                  <line class="grid" x1="60" y1="300" x2="740" y2="300"/>
+                </g>
+
+                <!-- axes -->
+                <line class="axis" x1="60" y1="60" x2="60" y2="300"/>
+                <line class="axis" x1="60" y1="300" x2="740" y2="300"/>
+
+                <!-- curves -->
+                <path class="line2" d="M60,250 C140,230 160,210 220,210 C300,210 340,190 400,175 C470,160 520,150 580,140 C650,132 700,125 740,120"/>
+                <path class="line" d="M60,270 C120,240 150,260 210,230 C270,200 320,215 380,180 C440,150 500,170 560,135 C620,120 690,140 740,110"/>
+
+                <text class="t" x="62" y="40">Return vs training (example)</text>
+                <text class="t2" x="62" y="320">Training steps →</text>
+                <text class="t2" x="10" y="180" transform="rotate(-90 10 180)">Return ↑</text>
+
+                <circle cx="600" cy="135" r="5" fill="rgba(255,255,255,0.85)"/>
+                <text class="t2" x="612" y="140">moving average</text>
+              </svg>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Interpretation</span> Quick guide</h4>
+              <ul>
+                <li><b>Steady rise</b>: stable learning.</li>
+                <li><b>Spikes → collapse</b>: LR too high / advantages noisy / clip too loose.</li>
+                <li><b>Flat line</b>: weak signal, exploration issue, or environment too hard.</li>
+                <li><b>Entropy drops too early</b>: policy becomes deterministic prematurely.</li>
+              </ul>
+              <div class="chartNote">
+                <span>Track together:</span>
+                <span>Return • Entropy • Value loss • Clip fraction</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="s8" class="section">
+          <h2>8) State representation (discrete → feature vectors)</h2>
+          <p>
+            Earlier we used 3 discrete customer states. To scale RL realistically, we move to feature vectors (RFM + behavior traits).
+          </p>
+
+          <div class="toggleRow">
+            <div class="toggle active" id="tDiscrete" onclick="showState('discrete')">Discrete state (toy MDP)</div>
+            <div class="toggle" id="tFeatures" onclick="showState('features')">Feature state (scaled)</div>
+            <div class="toggle" id="tNormalized" onclick="showState('normalized')">Normalized vector (NN input)</div>
+          </div>
+
+          <div id="stateBox" class="stateBox"></div>
+
+          <div class="callout">
+            <b>Why normalization matters:</b> NNs train better when inputs are in similar ranges (roughly 0–1 or standardized).
+          </div>
+        </section>
+
+        <section id="s9" class="section">
+          <h2>9) Minimal PPO code skeleton (what students should understand)</h2>
+          <p>
+            This skeleton focuses on the <b>mechanics</b>: rollout buffer → GAE → clipped loss → SGD epochs.
+          </p>
+
+          <pre><code>for iter in range(num_iters):
+
+  # 1) Collect rollout (on-policy)
+  obs_buf, act_buf, logp_old, rew_buf, val_buf = rollout(policy, env, T)
+
+  # 2) Compute advantages and returns
+  adv, ret = compute_gae(rew_buf, val_buf, gamma=0.99, lam=0.95)
+  adv = normalize(adv)
+
+  # 3) PPO updates (K epochs)
+  for epoch in range(K):
+    for minibatch in batches(...):
+      ratio = exp(logp_new - logp_old)
+      surr1 = ratio * adv
+      surr2 = clip(ratio, 1-eps, 1+eps) * adv
+      policy_loss = -mean(min(surr1, surr2))
+
+      value_loss = mean((V_new - ret)^2)
+      entropy = mean(Entropy(policy))
+
+      loss = policy_loss + c1*value_loss - c2*entropy
+      step_optimizer(loss)
+
+  # 4) Plot reward curve + diagnostics</code></pre>
+
+          <div class="callout">
+            <b>Class focus:</b> Make students explain what each buffer contains and why PPO needs logπ(old).
+          </div>
+        </section>
+
+        <section id="s10" class="section">
+          <h2>10) Class experiments + debugging playbook</h2>
+
+          <div class="grid3">
+            <div class="card">
+              <h4><span class="pill">Experiment</span> Change one knob</h4>
+              <ul>
+                <li>$\epsilon$: 0.2 → 0.3 (riskier policy moves)</li>
+                <li>Entropy coef: 0.01 → 0.02 (more exploration)</li>
+                <li>Steps/iter: 2048 → 4096 (better advantages)</li>
+                <li>LR: 3e-4 → 1e-4 (more stable)</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Failure</span> Reward collapses</h4>
+              <ul>
+                <li>Reduce LR</li>
+                <li>Reduce $\epsilon$</li>
+                <li>Increase batch size / steps per iter</li>
+                <li>Check advantage normalization</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h4><span class="pill">Failure</span> Entropy → 0 too fast</h4>
+              <ul>
+                <li>Increase entropy coefficient</li>
+                <li>Reduce LR</li>
+                <li>Check reward scaling</li>
+                <li>Ensure action space isn’t degenerate</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout">
+            <b>Must-log metrics:</b> return (moving avg), value loss, entropy, mean ratio, clip fraction.
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="footer">Class notes (HTML) • 16 Jan 2026 • Scaling RL with Neural Networks & PPO</div>
+  </div>
+
+  <script>
+    function scrollToTop(){ window.scrollTo({top:0, behavior:'smooth'}); }
+
+    const stateText = {
+      discrete: `# Toy MDP state (small)\n\nS ∈ {LOYAL, PRICE_SENSITIVE, COUPON_ADDICT}\n\nExample:\n  s_t = PRICE_SENSITIVE\n  a_t ∈ {NO_COUPON, SEND_COUPON}`,
+      features: `# Feature state (scaled)\n\ns = [R, F, M, S, A]\n\nR = recency_days (0..30)\nF = freq_30d (0..15)\nM = avg_basket (10..120)\nS = coupon_sensitivity (0..1)\nA = addiction_score (0..1)\n\nExample:\n  s_t = [12, 7, 64.2, 0.78, 0.21]`,
+      normalized: `# Normalized NN input (recommended)\n\nx = [R/30, F/15, M/120, S, A]\n\nExample:\n  s_t = [12, 7, 64.2, 0.78, 0.21]\n  x_t = [0.40, 0.47, 0.54, 0.78, 0.21]\n\nWhy: avoids one feature dominating gradients due to scale.`
+    };
+
+    function showState(kind){
+      document.getElementById('stateBox').textContent = stateText[kind];
+
+      // toggle UI
+      const tD = document.getElementById('tDiscrete');
+      const tF = document.getElementById('tFeatures');
+      const tN = document.getElementById('tNormalized');
+      [tD,tF,tN].forEach(x => x.classList.remove('active'));
+      if(kind==='discrete') tD.classList.add('active');
+      if(kind==='features') tF.classList.add('active');
+      if(kind==='normalized') tN.classList.add('active');
+    }
+
+    // init
+    showState('discrete');
+  </script></div>
+        </div>
+      </div>
+
+      <div class="section" id="infographic">
+        <h2>PPO Infographic</h2>
+        <div class="shell">
+          <div class="topbar">
+            <div class="chips">
+              <div class="chip"><b>Rollout</b> → buffer</div>
+              <div class="chip"><b>GAE</b> → advantages</div>
+              <div class="chip"><b>PPO</b> → clipped update</div>
+              <div class="chip"><b>Monitor</b> → reward curve</div>
+            </div>
+            <div class="btnRow" style="margin:0;">
+              <button class="btn" onclick="jump('#notes')">Back to Notes</button>
+              <button class="btn" onclick="jump('#top')">Top</button>
+            </div>
+          </div>
+          <div class="embedded">
+<div class="wrap">
+  <section class="hero" style="margin:0; border:1px solid rgba(255,255,255,.12); border-radius:22px; overflow:hidden;">
+    <div class="hero-top" style="padding:22px 24px 16px; display:flex; justify-content:space-between; gap:16px; border-bottom:1px solid rgba(255,255,255,.10);">
+      <div class="title" style="display:flex; gap:14px; align-items:flex-start;">
+        <div class="badge" style="display:inline-flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.80); background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.14); padding:6px 10px; border-radius:999px; white-space:nowrap;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:#7C3AED;"></span>
+          RL • Function Approximation • PPO
+        </div>
+        <div>
+          <div style="font-size:22px; font-weight:750; letter-spacing:.2px;">PPO at a glance (Infographic)</div>
+          <div style="margin-top:6px; color:rgba(255,255,255,.70); font-size:14px; max-width:70ch;">
+            The “mental model” students should keep: rollout → advantage (GAE) → clipped update → monitor reward curves.
+          </div>
+        </div>
+      </div>
+      <div style="text-align:right; color:rgba(255,255,255,.55); font-size:12px; white-space:nowrap;">
+        <div><b style="color:rgba(255,255,255,.92);">Class Date:</b> 16 Jan 2026</div>
+        <div><b style="color:rgba(255,255,255,.92);">Focus:</b> Stable learning</div>
+      </div>
+    </div>
+
+    <div style="padding:16px 24px; display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:12px;">
+      <div style="border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); border-radius:14px; padding:12px 14px; display:flex; gap:12px;">
+        <div style="width:34px;height:34px;border-radius:12px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;opacity:.95;">
+            <path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M8 15l3-3 3 2 4-6"></path>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,.76);margin-bottom:4px;">Why scale?</div>
+          <div style="font-weight:650;font-size:14px;margin-bottom:2px;">Tables don’t generalize</div>
+          <div style="color:rgba(255,255,255,.70);font-size:12px;">Neural nets learn from features and work in continuous spaces.</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); border-radius:14px; padding:12px 14px; display:flex; gap:12px;">
+        <div style="width:34px;height:34px;border-radius:12px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;opacity:.95;">
+            <path d="M12 2v6"></path><path d="M12 16v6"></path><path d="M4 12h16"></path><path d="M7 7l10 10"></path><path d="M17 7L7 17"></path>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,.76);margin-bottom:4px;">Architecture</div>
+          <div style="font-weight:650;font-size:14px;margin-bottom:2px;">Actor–Critic</div>
+          <div style="color:rgba(255,255,255,.70);font-size:12px;">Actor: π(a|s). Critic: V(s) baseline → Advantage.</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); border-radius:14px; padding:12px 14px; display:flex; gap:12px;">
+        <div style="width:34px;height:34px;border-radius:12px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;opacity:.95;">
+            <path d="M12 3l7 4v10l-7 4-7-4V7l7-4z"></path><path d="M12 7v10"></path>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,.76);margin-bottom:4px;">Stability</div>
+          <div style="font-weight:650;font-size:14px;margin-bottom:2px;">PPO clipping</div>
+          <div style="color:rgba(255,255,255,.70);font-size:12px;">Limits update size so training doesn’t “blow up”.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:18px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
+        <div style="border:1px solid rgba(255,255,255,.12); background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04)); border-radius:18px; padding:16px;">
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+            <span style="font-size:11px; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:rgba(255,255,255,.76);">Key ratio</span>
+            <div style="font-weight:700; font-size:14px;">How much policy changed?</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22); border-radius:14px; padding:10px 12px; overflow:auto;">
+            $$r_t(\theta)=\frac{\pi_\theta(a_t\mid s_t)}{\pi_{\theta_{old}}(a_t\mid s_t)}$$
+          </div>
+          <ul style="margin:10px 0 0; padding-left:18px; color:rgba(255,255,255,.72); font-size:13px;">
+            <li>r &gt; 1: increased probability of chosen action</li>
+            <li>r &lt; 1: decreased probability</li>
+          </ul>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,.12); background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04)); border-radius:18px; padding:16px;">
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+            <span style="font-size:11px; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:rgba(255,255,255,.76);">Clipping</span>
+            <div style="font-weight:700; font-size:14px;">Safe objective</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22); border-radius:14px; padding:10px 12px; overflow:auto;">
+            $$L^{CLIP}(\theta)=\mathbb{E}\left[\min\left(r_tA_t,\ \mathrm{clip}(r_t,1-\epsilon,1+\epsilon)\,A_t\right)\right]$$
+          </div>
+          <div style="margin-top:10px; color:rgba(255,255,255,.72); font-size:13px;">
+            If the optimizer pushes too far, clipping prevents runaway updates.
+          </div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,.12); background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04)); border-radius:18px; padding:16px;">
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+            <span style="font-size:11px; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:rgba(255,255,255,.76);">GAE</span>
+            <div style="font-weight:700; font-size:14px;">Low‑variance advantage</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22); border-radius:14px; padding:10px 12px; overflow:auto;">
+            $$\delta_t=r_t+\gamma V(s_{t+1})-V(s_t) \qquad A_t=\sum_{l\ge0}(\gamma\lambda)^l\delta_{t+l}$$
+          </div>
+          <div style="margin-top:10px; color:rgba(255,255,255,.72); font-size:13px;">
+            Better advantages → steadier PPO updates.
+          </div>
+        </div>
+
+        <div style="grid-column:1/-1; border:1px solid rgba(255,255,255,.12); background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04)); border-radius:22px; padding:16px; position:relative; overflow:hidden;">
+          <div style="font-weight:700; font-size:14px; letter-spacing:.2px; margin:2px 0 12px;">End‑to‑end PPO workflow (class demo)</div>
+
+          <svg viewBox="0 0 1160 330" role="img" aria-label="PPO workflow diagram"
+               style="width:100%; height:auto; display:block; border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.20);">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0" stop-color="#7C3AED" stop-opacity="0.95"/>
+                <stop offset="1" stop-color="#06B6D4" stop-opacity="0.95"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0" x2="1">
+                <stop offset="0" stop-color="#22C55E" stop-opacity="0.95"/>
+                <stop offset="1" stop-color="#F59E0B" stop-opacity="0.95"/>
+              </linearGradient>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.75)"/>
+              </marker>
+              <style>
+                .node{ rx:18; ry:18; fill: rgba(255,255,255,.07); stroke: rgba(255,255,255,.18); stroke-width: 1.2;}
+                .t1{ font: 700 13px ui-sans-serif, system-ui; fill: rgba(255,255,255,.92); letter-spacing: .2px;}
+                .t2{ font: 500 12px ui-sans-serif, system-ui; fill: rgba(255,255,255,.70);}
+                .code{ font: 600 11px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono"; fill: rgba(255,255,255,.82);}
+                .edge{ stroke: rgba(255,255,255,.55); stroke-width: 2.2; fill:none; marker-end:url(#arrow);}
+                .chip{ fill: url(#g1); opacity: .85; }
+                .chip2{ fill: url(#g2); opacity: .85; }
+              </style>
+            </defs>
+
+            <rect class="node" x="30"  y="70"  width="250" height="190"></rect>
+            <rect class="node" x="320" y="40"  width="250" height="250"></rect>
+            <rect class="node" x="610" y="40"  width="250" height="250"></rect>
+            <rect class="node" x="900" y="70"  width="230" height="190"></rect>
+
+            <rect class="chip"  x="48"  y="88"  width="214" height="10" rx="8"></rect>
+            <rect class="chip2" x="338" y="58"  width="214" height="10" rx="8"></rect>
+            <rect class="chip"  x="628" y="58"  width="214" height="10" rx="8"></rect>
+            <rect class="chip2" x="918" y="88"  width="194" height="10" rx="8"></rect>
+
+            <text class="t1" x="48" y="125">1) Rollout (collect data)</text>
+            <text class="t2" x="48" y="150">Run current policy πold for T steps</text>
+            <text class="t2" x="48" y="172">Store (s, a, r, logπold, V)</text>
+            <text class="code" x="48" y="210">buffer.append(obs, act, rew, logp, value)</text>
+
+            <text class="t1" x="338" y="95">2) Compute returns + advantage</text>
+            <text class="t2" x="338" y="120">Bootstrap value at the end</text>
+            <text class="t2" x="338" y="142">Use GAE(λ) for smoother At</text>
+            <text class="code" x="338" y="182">δt = rt + γVt+1 − Vt</text>
+            <text class="code" x="338" y="205">At = Σ (γλ)^l δt+l</text>
+
+            <text class="t1" x="628" y="95">3) PPO updates (K epochs)</text>
+            <text class="t2" x="628" y="120">Minibatch SGD on clipped objective</text>
+            <text class="t2" x="628" y="142">Train actor + critic + entropy</text>
+            <text class="code" x="628" y="182">r = πθ(a|s) / πold(a|s)</text>
+            <text class="code" x="628" y="205">Lclip = min(rA, clip(r)A)</text>
+
+            <text class="t1" x="918" y="125">4) Monitor signals</text>
+            <text class="t2" x="918" y="150">Reward curve, value loss</text>
+            <text class="t2" x="918" y="172">Entropy, clip fraction</text>
+            <text class="code" x="918" y="210">plot(return), log(entropy)</text>
+
+            <path class="edge" d="M 280 165 C 300 165, 300 165, 320 165"></path>
+            <path class="edge" d="M 570 165 C 590 165, 590 165, 610 165"></path>
+            <path class="edge" d="M 860 165 C 880 165, 880 165, 900 165"></path>
+
+            <path class="edge" d="M 1015 262 C 980 310, 210 310, 155 262"></path>
+            <text class="t2" x="450" y="310">Repeat: rollout → compute A → update → monitor</text>
+          </svg>
+
+          <div style="padding:12px 2px 0; color:rgba(255,255,255,.60); font-size:12px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div><b style="color:rgba(255,255,255,.86);">Retail intuition:</b> coupons boost short-term conversion but may increase long-term dependency.</div>
+            <div><b style="color:rgba(255,255,255,.86);">Class tip:</b> show return + entropy together.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+        </div>
+      </div>
+
+      <div class="footer">Class Pack • 16 Jan 2026 • Scaling RL with Neural Networks & PPO (All-in-one HTML)</div>
+    </div>
+  </div>
+
+  <script>
+    function jump(id){
+      const el = document.querySelector(id);
+      if(!el) return;
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  </script>
+</body>
+</html>
